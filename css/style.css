@@ -332,6 +332,10 @@ main, aside {
   list-style: none;
 }
 
+.body li b {
+  margin-left:5em
+}
+
 .home-button {
   top: 20px;
   left: 30px;

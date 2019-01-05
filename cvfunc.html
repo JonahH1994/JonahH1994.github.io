@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Exploring CV Functions - Jonah Okike-Hephzibah</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700,800|Playfair+Display:,300, 400, 700" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/animate.css">
+    <link rel="stylesheet" href="css/owl.carousel.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mediaelement@4.2.7/build/mediaelementplayer.min.css">
+
+    <link rel="stylesheet" href="fonts/ionicons/css/ionicons.min.css">
+    <link rel="stylesheet" href="fonts/fontawesome/css/font-awesome.min.css">
+
+     <script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async>
+</script>
+
+
+    <!-- Theme Style -->
+    <link rel="stylesheet" href="css/style.css">
+  </head>
+  <body>
+    
+    <div class="site-wrap">
+
+      <a href="#" class="offcanvas-toggle js-offcanvas-toggle">Menu</a>
+      <div class="offcanvas_menu" id="offcanvas_menu">
+        <ul class="mb-5">
+          <li><a href="bio.html">Bio</a></li>
+          <li class="active"><a href="portfolio.html">Portfolio</a></li>
+          <li><a href="resume.html">Resume</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+        <!--<ul class="social">
+          <li><a href="#" class="fa fa-twitter"></a></li>
+          <li><a href="#" class="fa fa-facebook"></a></li>
+          <li><a href="#" class="fa fa-instagram"></a></li>
+        </ul>-->
+
+</br><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="fa fa-heart-o" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
+<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+
+      </div>
+      
+      <!--<aside style="background-image: url(img/profile_big.jpg);"></aside>-->
+      <main,aside>
+        <a href="bio.html" class="home-button"><span class="fa fa-home"></span></a>
+        <center><h1 class="mb-5">Exploring CV Functions</h1></center>
+        <div class="mb-5">
+          <!--<ul class="portfolio-list">
+          </ul>-->
+	<ul class="body">
+          <li>
+	  <p> This project was a part of my Computer Vision course at Cornell. Its purpose was to understand how certain CV functions work. As such, I implemented a few functions that can be found in the OpenCV library such as:
+	  </p>
+	  <p>
+	  <b> 1. Harris Corner Detector <br></b>
+	  <b> 2. SIFT <br></b>
+	  <b> 3. Feature Matching using SSD or a ratio test <br></b>
+	  <b> 4. Find Fundamental Matrix <br></b>
+	  <b> 5. 3D Point Triangulation <br></b>
+	  <b> 6. RANSAC <br></b>
+	  </p>
+	  <h3> Harris Corner Detector </h3>
+	  <p> The Harris Corner Detector algorithm works as follows: the gradient in each direction is computed using convolution. Then these gradients are used to develop an M matrix with the gradients as follows: 
+$$ M = \begin{bmatrix} I_x^2 & I_xI_y \\ I_xI_y & I_y^2 \end{bmatrix} $$
+The harris response is then calculated using the determinant over the trace of the M matrix. This is done for every pixel of the inputted image.
+	  <center><img src="img/HarrisCorners.png" alt="" style="width:700px;height:250px;"><p>Original Image (Left) Harris Corner Response (Right)</p></center>
+	  </p>
+	  <h3> SIFT </h3>
+	  <p> The SIFT descriptor was implemented following the steps outlined by this <a href="https://people.eecs.berkeley.edu/~malik/cs294/lowe-ijcv04.pdf"> paper.</a>
+	  <center><img src="img/detectedCorners.png" alt="" style="width:350px;height:300px;"></center>
+	  </p>
+	  <h3> Feature Matching </h3>
+	  <p> The feature matching worked by taking in discriptors from two images (image 1 and image 2) as well as the key points found on each image and finding the discriptor that best matches a keypoint from one image (image 1) in comparison with the other (image 2).The metric used for this comparison is either SSD (sum of squared differences) of which the keypoint with the minimum SSD is taken. The second test that was coded is a ratio between the initial SSD and the second minimum SSD.
+	  </p>
+	  <h3> Fundamental Matrix </h3>
+	  <p> The main implementation for the estimation of the fundamental matrix uses the Eight-Point-Algorithm along with a modified version of the Hartley Normalization. The modification calls for normalization of each coordinate separetely as oppossed to normalizing each set of keypoints together.
+	  </p>
+	  <h3> 3D Point Triangulation </h3>
+	  <p> 3D point triangulation is quite straightforward if the projection matrix as well as the location of corresponding points from the left and right images are known. There are <a href="https://www.cse.wustl.edu/~furukawa/research/mview/index.html">datasets</a> available that allow for verification of a correct implementation. The algorithm uses the fact that the projection from the image coordinates from the left and right image correspond to the same 3D point. This results lead to 4 equations that leads to the following system:
+$$ A\bar{x} = \bf{0} $$
+were \(\bar{x}\) is the vector representing the 3D point in homogenous coordinates. The next step is to take the SVD (Singular Value Decomposition) of matrix A and find the eigenvector corresponding to the minimu eigenvalue of A. This eigenvector when divided by the fourth coordinate of the eigenvector represents the 3D point in homogenous coordinates.
+	  </p>
+	  <h3> RANSAC </h3>
+	  <p> My RANSAC (Random Sample Consensus) algorithm implementaiton samples randomly from matched keypoints and estimates the fundamental matrix using these points. The fundamental matrix is then evaluated using the epipolar distance (another function that I wrote manually, of which can be found in the github repository). This is done by finding the fraction of keypoints that fall within a specified inlier threshold. This procedure is repeated untill the best fundamental matrix is found. I found that this also resulted in more accurate results for the feature matching.
+	<center><img src="img/ransacKP.png" style="width:650px;height:300px;"><p>Feature Matching using RANSAC</p></center>
+	  </p>
+	  <p> The code can be found
+	   <a href="https://github.com/JonahH1994/cv_descriptor">here</a>
+	  </p>
+	</li>
+	</ul>
+        </div>
+        
+      </main,aside>
+    </div>
+
+    <!-- loader -->
+    <div id="loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#f4b214"/></svg></div>
+
+    <script src="js/jquery-3.2.1.min.js"></script>
+    <script src="js/popper.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/owl.carousel.min.js"></script>
+    <script src="js/jquery.waypoints.min.js"></script>
+    <script src="js/jquery.countdown.min.js"></script>
+    <script src="js/main.js"></script>
+
+  </body>
+</html>
