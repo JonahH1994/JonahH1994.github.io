@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Kuka youBot: Control and Optimization - Jonah Okike-Hephzibah</title>
+    <meta charset="utf-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700,800|Playfair+Display:,300, 400, 700" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/animate.css">
+    <link rel="stylesheet" href="css/owl.carousel.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mediaelement@4.2.7/build/mediaelementplayer.min.css">
+
+    <link rel="stylesheet" href="fonts/ionicons/css/ionicons.min.css">
+    <link rel="stylesheet" href="fonts/fontawesome/css/font-awesome.min.css">
+
+    <script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async>
+</script> 
+
+    <!-- Theme Style -->
+    <link rel="stylesheet" href="css/style.css">
+  </head>
+  <body>
+    
+    <div class="site-wrap">
+
+      <a href="#" class="offcanvas-toggle js-offcanvas-toggle">Menu</a>
+      <div class="offcanvas_menu" id="offcanvas_menu">
+        <ul class="mb-5">
+          <li><a href="bio.html">Bio</a></li>
+          <li class="active"><a href="portfolio.html">Portfolio</a></li>
+          <li><a href="resume.html">Resume</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+        <!--<ul class="social">
+          <li><a href="#" class="fa fa-twitter"></a></li>
+          <li><a href="#" class="fa fa-facebook"></a></li>
+          <li><a href="#" class="fa fa-instagram"></a></li>
+        </ul>-->
+
+	<ul class="social">
+	  <li><a href="https://github.com/JonahH1994" class="fa fa-github"></a></li>
+	</ul>
+
+</br><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="fa fa-heart-o" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
+<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+
+      </div>
+      
+      <!--<aside style="background-image: url(img/profile_big.jpg);"></aside>-->
+      <main,aside>
+        <a href="bio.html" class="home-button"><span class="fa fa-home"></span></a>
+        <center><h1 class="mb-5">Kuka youBot: Control and Optimization</h1></center>
+        <div class="mb-5">
+          <!--<ul class="portfolio-list">
+          </ul>-->
+	<ul class="body">
+          <li>
+	  <p> In this project, the Kuka youBot is used to perform collission free navigation with the objective of picking blocks off the ground and placing them in a basket. An optimization is run in the beginning to find an optimal location for the bucket that will result in minimal travel for the youBot.
+	  </p>
+	  <h3> Optimization </h3>
+	  <p> The optimzation is performed using the <a href="http://cvxopt.org">CVX</a> optimization software formulated as a quadratic problem. The CVX software is capable of solving a variety of optimzation problems and the documentation provides a number of examples to get started with using the software. The problem that is solved in this project is finding the optimal location for a bucket to be placed amongst cubes that are randomly placed in a field. This optimization takes on the following form:
+$$ \boldsymbol x^{\boldsymbol *}_{\boldsymbol 0} = \DeclareMathOperator*{\argminB}{argmin} \argminB_{x_{0} \in \mathbb{R}^2} \frac{1}{m} \sum_{i=1}^{m}||x_{0}- x_{i}||^2 $$
+In order to evaluate this expression in CVX, it needs to be expanded into a form acceptable for the software. This expansion is the follwoing:
+$$ \begin{aligned} 
+x^{*}_{0} &= \argminB_{x_{0} \in \mathbb{R}^2} \frac{1}{m} \sum_{i=1}^{m} x^{T}_0x_{0} -2x^{T}_{0}x_{i} + x^{T}_{i}x_{i} \\
+&= \argminB_{x_{0} \in \mathbb{R}^2} 
+%\frac{1}{m} \sum_{i=1}^{m} 
+\frac{1}{2}x^{T}_{0}2Ix_{0} -x^{T}_{0}\frac{2}{m}\sum_{i=1}^{m}
+\begin{bmatrix} x_i \\ y_i \end{bmatrix} + \sum_{i=1}^{m}x^{T}_{i} x_{i} \\
+&= \argminB_{x_{0} \in \mathbb{R}^2} \frac{1}{2}x^{T}_{0}Px_{0} + x^{T}_{0}q + \sum_{i=1}^{m} x^{T}_{i} x_{i} \\
+&= \argminB_{x_{0} \in \mathbb{R}^2} \frac{1}{2} x^{T}_{0}Px_{0} + x^{T}_{0}q \end{aligned}$$
+The P and q matrix are fed into CVX and the last term (\(\sum_{i=1}^{m}x^T_ix_i\)) is left out of the optimization as it is a constant and not dependent on \(x_0\). The problem can also be modified to include constraints that bound the possible values of \(x_0\). If the distance from the bucket to the Kuka's initial location is required to be at most 1m away, a constraint can be added into this optimization to account for this. For instance, if the manhattan distance is used as the metric, then this results in the following relation:
+$$ distance = |x_{0,x}-x_{kuka,x}| + |x_{0,y}-x_{kuka,y}| \leq 1 $$
+Like the main optimization argument, this also needs to be manipulated into a form that works for CVX. The CVX software takes this constraint equation as a matrix inequality, thus, the above inequality needs to be put into this form as well. The expression can be put in this way by doing the following:
+$$ \begin{aligned}
+|x_{0,x}-x_{kuka,x}| + |x_{0,y}-x_{kuka,y}| &\leq 1 \\
+&= x_{0,x}-x_{kuka,x} + x_{0,y} - x_{kuka,y} \leq 1 \\
+&= x_{0,x}-x_{kuka,x} - x_{0,y} + x_{kuka,y} \leq 1 \\
+&= -x_{0,x}+x_{kuka,x} - x_{0,y} + x_{kuka,y} \leq 1 \\
+&= -x_{0,x}+x_{kuka,x} + x_{0,y} - x_{kuka,y} \leq 1 \\
+x_{0,x} + x_{0,y} &\leq 1 + x_{kuka,x} + x_{kuka,y} \\
+x_{0,x} - x_{0,y} &\leq 1 + x_{kuka,x} - x_{kuka,y} \\
+-x_{0,x} - x_{0,y} &\leq 1 - x_{kuka,x} - x_{kuka,y} \\
+-x_{0,x} + x_{0,y} &\leq 1 - x_{kuka,x} + x_{kuka,y} \\
+\begin{bmatrix}
+1 & 1 \\
+1 & -1 \\
+-1 & -1 \\
+-1 & 1
+\end{bmatrix}
+\begin{bmatrix}
+x_{0,x} \\ x_{0,y}
+\end{bmatrix} &\leq
+\begin{bmatrix}
+1 + x_{kuka,x} + x_{kuka,y} \\
+1 + x_{kuka,x} - x_{kuka,y} \\
+1 - x_{kuka,x} - x_{kuka,y} \\
+1 - x_{kuka,x} + x_{kuka,y}
+\end{bmatrix} \\
+Gx_0 &\leq h
+\end{aligned} 
+$$
+This G and h matrix can also be fed into the CVX function which will result in the constraint being met.
+	  </p>
+	  <h3> Path Planning </h3>
+	  <p> To plan a path to each block on the field, a cost function was created to evaluate how well the path avoided obstacles. The overall cost function balances the cost of straying away from the simplest path (shortest distance between goald and current position) with the cost of avoiding obstacles in the field. If the weight of the cost for straying away from the path is larger than that of reducing the path length, the resulting path at convergence will favor the avoidance of the blocks on the field rather than reducing the amount of travel. However, if this weighting is too high, then a path that completely minimizes the avoidance cost while likely maximizing the distance cost will be the result. This is not ideal as it will take the Kuka too long to get to its target. Thus, finding the perfect ratio for the weights is the first task that needs to be accomplished.
+	  </p>
+	  <p> The obstacle avoidance cost is defined as follows:
+$$ 
+C(P) = \sum_{i=0}^{m} \sum_{s\in T} 
+\begin{cases}
+0 & \text{if } d_{i,bucket} < r_{bucket} \\
+\frac{1}{(d_{i,s}-r_i)^2} & \text{if } d_{i,s} > r_i + \epsilon \\
+\frac{1}{\epsilon^2}K^{r_i + \epsilon - d_{i,s}} & \text{if } d_{i,s} \leq r_i + \epsilon
+\end{cases} 
+$$
+The first case of this cost function is zero if the block is in the bucket. This is because there should be no penalty for a block that is technically not in the way of the Kuka. The second case of the cost function accounts for the distance between the path \(s\) and an object in the field. This case for the cost tends towards infinity if the path segment and obstacle are fairly close to each other and tends toward zero the further away they are. The value \(r_i\) represents a bounding circle around obstacle i. The third and final case of this cost function is for when the path passes through the obstacle. The value of K is very large while \(\epsilon\) is a small safety factor that prevents the second case of the cost function from blowing up. Combining thsese terms to form the third case causes the cost to be very large which is what is needed if the path passes through an obstacle.
+	  </p>
+	  <p> The path length cost is implemented as follows:
+$$ L(P) = \sum_{j=2}^{n}||p_j - p_{j-1}||^2 $$
+This is just the distance squared of each segment of the proposed path. Putting these two costs together along with a weighting to allow for adjusting the importance of each cost term. The resulting equation is a minimization of the weighted sum:
+$$ P^* = \DeclareMathOperator*{\argminB}{argmin} \argminB_{P \in \mathcal{P}} aC(P) + (1-a)L(P) $$
+The result of this minimization will be the shortest path possible that avoids the obstacles on the field. 
+	  </p>
+	  <p> Content coming soon!
+	  </p>
+	  <p> The code for this project was written in python using ROS. Since this project was part of a course, and relient on a service unique to the course I will not be releasing the code until I finish rewriting these parts on my own.
+	  </p> 
+	  <!--<p> The code can be found
+	   <a href="add code link here">here.</a>
+	  </p>-->
+	</li>
+	</ul>
+        </div>
+        
+      </main,aside>
+    </div>
+
+    <!-- loader -->
+    <div id="loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#f4b214"/></svg></div>
+
+    <script src="js/jquery-3.2.1.min.js"></script>
+    <script src="js/popper.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/owl.carousel.min.js"></script>
+    <script src="js/jquery.waypoints.min.js"></script>
+    <script src="js/jquery.countdown.min.js"></script>
+    <script src="js/main.js"></script>
+
+  </body>
+</html>

@@ -1,0 +1,10 @@
+$$ \boldsymbol x^{\boldsymbol *}_{\boldsymbol 0} = \DeclareMathOperator*{\argminB}{argmin} \argminB_{\boldsymbol x_{\boldsymbol 0} \epsilon \mathbb{R}^2} \frac{1}{m} \sum_{i=1}^{m}||\boldsymbol x_{\boldsymbol 0}- \boldsymbol x_{\boldsymbol i}||^2 $$
+In order to evaluate this expression in CVX, it needs to be expanded into a form acceptable for the software. This expansion is the follwoing:
+$$ \begin{aligned} 
+\boldsymbol x^{\boldsymbol *}_{\boldsymbol 0} &= \argminB_{\boldsymbol x_{\boldsymbol 0} \epsilon \mathbb{R}^2} \frac{1}{m} \sum_{i=1}^{m} \boldsymbol x^{\boldsymbol T}_0\boldsymbol x_{\boldsymbol 0} -2\boldsymbol x^{\boldsymbol T}_{\boldsymbol 0}x_{\boldsymbol i} + \boldsymbol x^{\boldsymbol T}_{\boldsymbol i}\boldsymbol x_{\boldsymbol i} \\
+&= \argminB_{\boldsymbol x_{\boldsymbol 0} \epsilon \mathbb{R}^2} 
+%\frac{1}{m} \sum_{i=1}^{m} 
+\frac{1}{2}\boldsymbol x^{\boldsymbol T}_{\boldsymbol 0}2I\boldsymbol x_{\boldsymbol 0} -\boldsymbol x^{\boldsymbol T}_{\boldsymbol 0}\frac{2}{m}\sum_{i=1}^{m}
+\begin{bmatrix} x_i \\ y_i \end{bmatrix} + \sum_{i=1}^{m}\boldsymbol x^{\boldsymbol T}_{\boldsymbol i} \boldsymbol x_{\boldsymbol i} \\
+&= \argminB_{\boldsymbol x_{\boldsymbol 0} \epsilon \mathbb{R}^2} \frac{1}{2}\boldsymbol x^{\boldsymbol T}_{\boldsymbol 0}P\boldsymbol x_{\boldsymbol 0} + \boldsymbol x^{\boldsymbol T}_{\boldsymbol 0}q + \sum_{i=1}^{m}\boldsymbol x^{\boldsymbol T}_{\boldsymbol i} \boldsymbol x_{\boldsymbol i} \\
+&= \argminB_{\boldsymbol x_{\boldsymbol 0} \epsilon \mathbb{R}^2} \frac{1}{2}\boldsymbol x^{\boldsymbol T}_{\boldsymbol 0}P\boldsymbol x_{\boldsymbol 0} + \boldsymbol x^{\boldsymbol T}_{\boldsymbol 0}q \end{aligned}$$

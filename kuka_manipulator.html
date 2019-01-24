@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Kuka youBot Manipulator Kinematics - Jonah Okike-Hephzibah</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700,800|Playfair+Display:,300, 400, 700" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/animate.css">
+    <link rel="stylesheet" href="css/owl.carousel.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mediaelement@4.2.7/build/mediaelementplayer.min.css">
+
+    <link rel="stylesheet" href="fonts/ionicons/css/ionicons.min.css">
+    <link rel="stylesheet" href="fonts/fontawesome/css/font-awesome.min.css">
+
+    <script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async>
+</script>
+
+
+    <!-- Theme Style -->
+    <link rel="stylesheet" href="css/style.css">
+  </head>
+  <body>
+    
+    <div class="site-wrap">
+
+      <a href="#" class="offcanvas-toggle js-offcanvas-toggle">Menu</a>
+      <div class="offcanvas_menu" id="offcanvas_menu">
+        <ul class="mb-5">
+          <li><a href="bio.html">Bio</a></li>
+          <li class="active"><a href="portfolio.html">Portfolio</a></li>
+          <li><a href="resume.html">Resume</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+        <!--<ul class="social">
+          <li><a href="#" class="fa fa-twitter"></a></li>
+          <li><a href="#" class="fa fa-facebook"></a></li>
+          <li><a href="#" class="fa fa-instagram"></a></li>
+        </ul>-->
+	<ul class="social">
+	  <li><a href="https://github.com/JonahH1994" class="fa fa-github"></a></li>
+	</ul>
+
+</br><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="fa fa-heart-o" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
+<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+
+      </div>
+      
+      <!--<aside style="background-image: url(img/profile_big.jpg);"></aside>-->
+      <main,aside>
+        <a href="bio.html" class="home-button"><span class="fa fa-home"></span></a>
+        <center><h1 class="mb-5">Kuka youBot Manipulator Kinematics</h1></center>
+        <div class="mb-5">
+          <!--<ul class="portfolio-list">
+          </ul>-->
+	<ul class="body">
+          <li>
+	  <p> In this project, I developed a few services to allow the Kuka youBot arm to navigate to randomly selected waypoints. The waypoints are generated at random within the limits of each joint of the manipulator. There are 5 joints that are used for manuevering purposes, each of which is limited to move within the following ranges: <br>
+	  <b> Joint 1: [-169\(^\circ\),169\(^\circ\)]<br></b>
+	  <b> Joint 2: [-90\(^\circ\),90\(^\circ\)] <br></b>
+	  <b> Joint 3: [-131\(^\circ\),131\(^\circ\)] <br></b>
+	  <b> Joint 4: [-102\(^\circ\),102\(^\circ\)] <br></b>
+	  <b> Joint 5: [-90\(^\circ\),90\(^\circ\)] <br></b>
+By controlling each of these 5 joints, I was able to control the pose of the end effector. To accomplish this level of control, I needed to be able to determine the joint angles (\(\theta_1,\theta_2,\theta_3,\theta_4,\theta_5\)) that result in reaching a particular position (\(x_g,y_g,z_g\)). This is accomplished by calculating the forward kinematics of the Kuka youBot. From the forward kinematics, the jacobian can be calculated which enables a connection between the joint angular velocity rates and the end effector linear and angular velocity rates. Finally, the inverse kinematics enables the calculation from desired position to corresponding joint angles.
+	  </p>
+	  <h3> Forward Kinematics </h3>
+	  <p> To calculate the forward kinematics, the geometry of the Kuka youBot manipulator is needed. Luckily this information is readily available <a href="ftp://ftp.youbot-store.com/manuals/KUKA-youBot_UserManual.pdf">online</a> through the Kuka youBot user manual. However, the geometry configuration used in this project was from the figure provided below:
+<center><img src="img/kuka_proj3.png" style="width:650px;height:300px;"><p>Kuka youBot Arm Geometry Configuration</p></center>
+This configuration simplified the creation of the Denavit-Hartenberg (DH) parameters which were used to build the forward kinematics matrix. More on DH parameters can be found <a href="https://en.wikipedia.org/wiki/Denavit%E2%80%93Hartenberg_parameters">here</a>. By taking the pose given by the DH parameters of each joint, the forward kinematics matrix was built in the following manner:
+$$ FK = \begin{bmatrix} P^1_0 & P^2_0 & P^3_0 & P^4_0 & P^5_0 \end{bmatrix} $$
+here \(P^i_0\) is the 3D coordinate of the corresponding joint for i = 1,..,5. This matrix enables the formulation of the jacobian which is the driving force of the robotic manipulator in this project.
+	  </p>
+	  <h3> Velocity Kinematics </h3>
+	  <p> The velocity kinematics creates a relation called the Jacobian that relates the end effectors velocity to the joint velocities. In its full form, the jacobian includes a linear and angular velocity component, however, I choose to only consider the linear component as the orientation of the end effector was not of interest for this project. To accomplish this, the derivative of the forward kinematics matrix is taken. There are a few ways to do this, however, this project implemented two different methods. The first was to use the method of finite difference on the forward kinematics. Since the jacobian is supposed to relate the end effector to each joint angle (input), the jacobian is composed of the velocity of the end effector with respect to each joint:
+$$ \begin{bmatrix} \frac{\partial P^5_0}{\partial \theta_1} & \frac{\partial P^5_0}{\partial \theta_2} & \frac{\partial P^5_0}{\partial \theta_2} & \frac{\partial P^5_0}{\partial \theta_3} & \frac{\partial P^5_0}{\partial \theta_4} & \frac{\partial P^5_0}{\partial \theta_5} \end{bmatrix}$$
+The second and preferred method of this project uses the analytical form of the derivative for the jacobian. It uses the fact that the derivative of the position is equal to the velocity. Since the joints are revolute, the joint velocities can be used to derive the end effectors velocity:
+$$ \begin{aligned} V^5_0 &= \frac{d}{dt}P^5_0 \\ &= \Omega^5_{i-1} \times P^5_{i-1} \\ &= \Omega^5_{i-1} \times (P^5_0 - P^{i-1}_0) \\ &= \hat{z}^5_{i-1} \times (P^5_0 - P^{i-1}_0)\dot{\theta_i} \end{aligned} $$
+Note, this represents the i\(^{th}\) column of the jacobian of which the angular velocity is not included. Since all of these terms are things that are easily determined using the joint angles, this result is easily calculated. 
+	  </p>
+	  <h3> Inverse Kinematics </h3>
+	  <p> The inverse kinematics method is pretty straight forward as the process is repetative. Ideally, once the jacobian is composed, the inverse (or transpose) is taken resulting in a relation from a given target position to corresponding joint angles. Since the jacobian is defined using velocities, the error between the current end effector position and target position is multiplied by the jacobian to result in a direction of movement for the joints. This is repeated untill the error is close to zero at which point the joints have reached the necessary angles.
+	  </p>
+	  <p> <!--The code for this project was written in python using ROS. Since this project was part of a course, and relient on a service unique to the course I will not be releasing the code until I finish rewriting these parts on my own.-->
+The code for this project will be released soon.
+	  </p> 
+	  <!--<p> The code can be found
+	   <a href="add reference to code">here.</a>
+	  </p>-->
+	</li>
+	</ul>
+        </div>
+        
+      </main,aside>
+    </div>
+
+    <!-- loader -->
+    <div id="loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#f4b214"/></svg></div>
+
+    <script src="js/jquery-3.2.1.min.js"></script>
+    <script src="js/popper.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/owl.carousel.min.js"></script>
+    <script src="js/jquery.waypoints.min.js"></script>
+    <script src="js/jquery.countdown.min.js"></script>
+    <script src="js/main.js"></script>
+
+  </body>
+</html>
