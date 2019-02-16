@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<meta http-equiv="Cache-control" content="no-cache">
+
+<head>
+    <link href="https://fonts.googleapis.com/css?family=Josefin+Slab|Lato|Rokkitt" rel="stylesheet">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js"></script>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+
+
+    <style>
+        body {
+            font-family: 'Rokkitt', serif;
+            text-align: center;
+        }
+        
+        #holder {
+            width: 100%;
+            margin: 0px;
+            padding: 0px;
+            text-align: left;
+            font-weight: "bold";
+            text-align: center;
+        }
+        
+        #hand {
+            width: 100%;
+            margin: 0px;
+            padding: 0px;
+            text-align: left;
+            font-weight: "bold";
+            text-align: center;
+        }
+        
+        #testCircle {
+            height: 30%;
+            width: 100%;
+            margin: 0px;
+            padding: 0px;
+            text-align: left;
+            text-align: center;
+        }
+        
+        #logo {
+            width: 500;
+            margin: 0px;
+            padding: 0px;
+            text-align: center;
+            position: relative;
+            z-index: -1;
+        }
+        
+        #toggle {
+            font-size: 20px;
+        }
+        
+        h1 {
+            font-size: 60px;
+            padding-top: 30px;
+            padding-bottom: 0px;
+            font-weight: "bold";
+            margin: 0px;
+        }
+        
+        h2 {
+            font-size: 35px;
+            padding: 0px;
+            margin: 0px;
+            font-weight: bold;
+        }
+        
+        body {
+            padding: 0px;
+            margin: 0px;
+        }
+    </style>
+    <title>ECE 4760</title>
+</head>
+
+<body>
+    <div id="holder">
+        <h1>ECE 4760</h1>
+        <h2>Real Time Force Visualization</h2>
+    </div>
+
+    <div id="hand">
+    </div>
+
+
+    <div id="testCircle">
+
+    </div>
+
+    <button type="button" id="toggle">Begin Real Time</button>
+
+    <script type="text/javascript">
+        var dontRun;
+
+        window.addEventListener('error', function (e) {
+            //console.log(e);
+            dontRun += 1;
+        }, true);
+    </script>
+
+    <script>
+        var freeze = 0;
+
+        //selecting button to toggle between real time and freezing
+        //the visualization
+        var button = d3.select("#toggle");
+
+
+        //creating a case for button click event
+        button.on("click", function (d) {
+            if (freeze == 0) {
+                freeze = 1;
+                d3.select(this).text("Freeze Vis")
+            } else {
+                freeze = 0;
+                d3.select(this).text("Real Time")
+
+            }
+        })
+
+        //Creating circles on hand logo
+        var svg = d3.select("#hand").append("svg")
+            .attr("width", function (d) {
+                return 500;
+            })
+            .attr("height", function (d) {
+                return 530;
+            });
+        svg.append("image")
+            .attr("xlink:href", "handImage.jpg")
+            .attr("height", 530)
+            .attr("width", 500);
+
+        var xCenter = [70, 180, 253, 325, 397,
+                      390, 325, 250, 185,
+                      355, 285, 225,
+                      255, 285];
+
+        var yCenter = [230, 70, 50, 70, 120,
+                      230, 230, 230, 230,
+                      285, 285, 285,
+                      325, 365];
+
+        //appending circles with random colors to begin with
+        for (i = 1; i < 15; i++) {
+            svg.append("circle")
+                .attr("r", 15)
+                .attr("cx", xCenter[i - 1])
+                .attr("cy", yCenter[i - 1])
+                .attr("id", function (d) {
+                    var str1 = "Sensor";
+                    var str2 = i.toString();
+
+                    return str1.concat(str2);
+                })
+                .attr("z-index", 1)
+                .style("fill", function (d) {
+                    var rand = Math.floor(Math.random() * 255);
+                    if (i % 2 != 0) {
+                        var string = "rgb(" + rand + ",255,0)";
+                        return string;
+                    } else {
+                        var string = "rgb(255," + rand + ",0)";
+                        return string;
+                    }
+                });
+
+        }
+
+
+        //calling updateData() every 100 ms
+        var inter = setInterval(function () {
+
+            if (freeze != 0) {
+                updateData();
+            }
+        }, 100);
+
+        //function to check if element is in array
+        function include(arr, obj) {
+            return (arr.indexOf(obj) != -1);
+        }
+
+
+        //function to update circles to corresponding sensor
+        function updateCircles(sensorData) {
+
+
+            var sensorID = sensorData.Sensor;
+
+            //selecting circle by sensor ID
+            var selectedCircle = d3.select("#".concat(sensorID));
+
+
+            //hand sensors
+            var hands = ["Sensor1", "Sensor2", "Sensor3", "Sensor4", "Sensor5"];
+
+            //badly connected palm sensors
+            var badPalms = ["Sensor11", "Sensor12", "Sensor13"];
+
+
+            selectedCircle
+                .transition() //this allows smooth transitions between colors
+                .style("fill", function (d) {
+
+
+                    if (include(hands, sensorID)) {
+                        if (sensorData.R > 200000) {
+                            return resistanceToColorHands(Math.log(200000));
+                        } else if (sensorData.R < 3000) {
+                            return resistanceToColorHands(Math.log(3000));
+                        } else {
+                            return resistanceToColorHands(Math.log(sensorData.R));
+                        };
+                    } else if (include(badPalms, sensorID)) {
+
+                        if (sensorData.R > 700000) {
+                            return resistanceToColorBadPalm(Math.log(700000));
+                        } else if (sensorData.R < 600000) {
+                            return resistanceToColorBadPalm(Math.log(600000));
+                        } else {
+                            return resistanceToColorBadPalm(Math.log(sensorData.R));
+                        };
+
+                    } else {
+                        if (sensorData.R > 200000) {
+                            return resistanceToColorPalm(Math.log(200000));
+                        } else if (sensorData.R < 3000) {
+                            return resistanceToColorPalm(Math.log(3000));
+                        } else {
+                            return resistanceToColorPalm(Math.log(sensorData.R));
+                        };
+                    }
+                });
+        }
+
+
+        //creating scales mapping resistance to colors
+        var resistanceToColorHands = d3.scaleLinear()
+            .domain([Math.log(200000), Math.log(10000), Math.log(3000)])
+            .range(["#32cd32", "yellow", "red"])
+
+        var resistanceToColorPalm = d3.scaleLinear()
+            .domain([Math.log(200000), Math.log(30000), Math.log(3000)])
+            .range(["#32cd32", "yellow", "red"])
+
+        var resistanceToColorBadPalm = d3.scaleLinear()
+            .domain([Math.log(700000), Math.log(650000), Math.log(600000)])
+            .range(["#32cd32", "yellow", "red"])
+
+
+
+
+        function updateData() {
+
+
+            //unpackage data
+            d3.json("data15.txt", function (error, data) {
+
+
+                //if received valid data, call updateCircles function
+                if (typeof (data) != "undefined") {
+                    data.sensorData.forEach(updateCircles);
+
+                }
+
+            });
+
+
+
+
+        }
+    </script>
+
+</body>

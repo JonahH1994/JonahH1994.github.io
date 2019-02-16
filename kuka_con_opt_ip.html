@@ -126,10 +126,39 @@ This is just the distance squared of each segment of the proposed path. Putting 
 $$ P^* = \DeclareMathOperator*{\argminB}{argmin} \argminB_{P \in \mathcal{P}} aC(P) + (1-a)L(P) $$
 The result of this minimization will be the shortest path possible that avoids the obstacles on the field. 
 	  </p>
-	  <p> Content coming soon!
+	  <h3> Path Following </h3>
+	  <p> To enable the Kuka youBot to follow the generated path, a path following pure pursuit controller was used. The controller works by using heading, cross-track and along-track error to determine the control input needed to keep the bot on the path. If the Kuka happens to stray off the path, the heading and cross-track error will cause the PD controller to output a heading direction to place the bot back on the path. Additionally, the along-track error provides a propulsion term that propells the bot forward if it is behind the target or backward if in front of the target. This controller works by correcting an open-loop control that is based on the provided path. The open loop control input has the following form:
+$$ u_{k,OL}(t) = 
+\begin{bmatrix}
+v(t) \\ k(t)
+\end{bmatrix}
+= 
+\begin{bmatrix}
+\sqrt{\dot{x}_t(t)^2 + \dot{y}_t(t)^2} \\
+\frac{\dot{\theta}_t(t)}{\sqrt{\dot{x}_t(t)^2 + \dot{y}_t(t)^2}}
+\end{bmatrix}
+$$
+were k(t) is the curvature at each point along the path. The corrective terms which create the closed loop controller works as follows:
+$$
+u_{k,CL}(t) = u_{k,OL}(t) + 
+\begin{bmatrix}
+k_s & 0 & 0 \\
+0 & k_n & k_{\theta}
+\end{bmatrix}
+\begin{bmatrix}
+\delta_s \\ \delta_n \\ \delta_{\theta}
+\end{bmatrix}
+$$
+were \(k_s\), \(k_n), and \(k_{\theta}\) are the along-track, cross-track and heading gains respectively. 
+
+<!--The controller uses the bots current position as well as the given path to determine a control stragety to keep the bot on the path. If the Kuka is to end up straying away from the path, the controller calculates the heading, cross-track and along-track error-->
 	  </p>
-	  <p> The code for this project was written in python using ROS. Since this project was part of a course, and relient on a service unique to the course I will not be releasing the code until I finish rewriting these parts on my own.
-	  </p> 
+	  <!--<p> Content coming soon!
+	  </p>-->
+	  <!--<p> The code for this project was written in python using ROS. Since this project was part of a course, and relient on a service unique to the course I will not be releasing the code until I finish rewriting these parts on my own.
+	  </p>-->
+	  <p> The code for this project was written in ROS and will be released soon.
+	  </p>
 	  <!--<p> The code can be found
 	   <a href="add code link here">here.</a>
 	  </p>-->
